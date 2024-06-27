@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 interface Todo {
@@ -12,14 +11,16 @@ const TodoList = () => {
     axios
       .get<Todo[]>("https://jsonplaceholder.typicode.com/todos")
       .then((res) => res.data);
-  const { data: todos } = useQuery({
+
+  const { data: todos, error } = useQuery<Todo[], Error>({
     queryKey: ["todos"],
     queryFn: fetchTodos,
   });
 
+  if (error) return <p>{error.message}</p>;
+
   return (
     <div>
-      {/* {errors} */}
       {todos?.map((todo) => (
         <li key={todo.id}>{todo.title}</li>
       ))}
