@@ -2,27 +2,36 @@ import { useState } from "react";
 import usePosts from "./hooks/usePosts";
 
 const PostList = () => {
-  const [userId, setUserId] = useState<number>();
-  const { data: posts, error, isLoading } = usePosts(userId);
+  const pageSize = 10;
+  const [page, setPage] = useState(1);
+  const { data, error, isLoading } = usePosts({ page, pageSize });
 
   if (isLoading) return <p>Loading...</p>;
 
   if (error) return <p>{error.message}</p>;
 
   return (
-    <div className="max-w-xl ">
-      <select
-        onChange={(event) => setUserId(parseInt(event.target.value))}
-        className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg">
-        <option selected></option>
-        <option value="1">User 1</option>
-        <option value="2">User 2</option>
-        <option value="3">User 3</option>
-      </select>
-      {posts?.map((post) => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-    </div>
+    <>
+      <div className="max-w-xl ">
+        {data?.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </div>
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+        type="button"
+        className="text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 me-2 my-2 ml-2">
+        Previous
+      </button>
+      <button
+        disabled={page === 10}
+        onClick={() => setPage(page + 1)}
+        type="button"
+        className="text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 me-2 my-2 ml-2">
+        Next
+      </button>
+    </>
   );
 };
 
