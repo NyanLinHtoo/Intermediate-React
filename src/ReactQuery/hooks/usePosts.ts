@@ -8,7 +8,7 @@ interface Post {
   body: string;
 }
 
-const usePosts = (userId: number) => {
+const usePosts = (userId: number | undefined) => {
   return useQuery<Post[], Error>({
     queryKey: userId ? ["user", userId, "posts"] : ["posts"],
     queryFn: () =>
