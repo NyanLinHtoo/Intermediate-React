@@ -1,17 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { Todo } from "./hooks/useTodos";
+import { toast, Toaster } from "sonner";
 
 const TodoForm = () => {
   const queryClient = useQueryClient();
 
-  const addTodo = useMutation({
+  const addTodo = useMutation<Todo, Error, Todo>({
     mutationFn: (todo: Todo) =>
       axios
         .post<Todo>("https://jsonplaceholder.typicode.com/todos", todo)
         .then((res) => res.data),
-    onSuccess: (savedTodo, newTodo) => {
+    onSuccess: (savedTodo) => {
       console.log(savedTodo);
 
       queryClient.setQueryData<Todo[]>(["todos"], (todos) => [
@@ -35,6 +36,7 @@ const TodoForm = () => {
             userId: 1,
           });
         }
+        if (addTodo.error) toast.error(addTodo.error.message);
       }}>
       <div>
         <input
@@ -48,6 +50,7 @@ const TodoForm = () => {
           Add
         </button>
       </div>
+      <Toaster richColors position="top-center" />
     </form>
   );
 };
