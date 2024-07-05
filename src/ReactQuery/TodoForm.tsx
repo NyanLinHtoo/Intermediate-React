@@ -1,48 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { useRef } from "react";
-import { Todo } from "./hooks/useTodos";
 import { toast, Toaster } from "sonner";
-
-interface AddTodoContext {
-  previousTodos: Todo[] | undefined;
-}
+import useAddTodo from "./hooks/useAddTodo";
 
 const TodoForm = () => {
-  const queryClient = useQueryClient();
+  const ref = useRef<HTMLInputElement>(null);
 
-  const addTodo = useMutation<Todo, Error, Todo, AddTodoContext>({
-    mutationFn: (todo: Todo) =>
-      axios
-        .post<Todo>("https://jsonplaceholder.typicode.com/todosz", todo)
-        .then((res) => res.data),
-
-    onMutate: (newTodo: Todo) => {
-      const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
-      queryClient.setQueryData<Todo[]>(["todos"], (todos) => [
-        newTodo,
-        ...(todos || []),
-      ]);
-
-      if (ref.current) {
-        ref.current.value = "";
-      }
-
-      return { previousTodos };
-    },
-    onSuccess: (savedTodo, newTodo) => {
-      queryClient.setQueryData<Todo[]>(["todos"], (todos) =>
-        todos?.map((todo) => (todo === newTodo ? savedTodo : todo))
-      );
-    },
-    onError: (error, newTodo, context) => {
-      if (!context) return toast.error(error.message);
-
-      queryClient.setQueryData<Todo[]>(["todos"], context.previousTodos);
-    },
+  const addTodo = useAddTodo(() => {
+    if (ref.current) {
+      ref.current.value = "";
+    }
   });
 
-  const ref = useRef<HTMLInputElement>(null);
   return (
     <form
       className="flex"
